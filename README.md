@@ -1,58 +1,94 @@
-# MySQL, PHPMyAdmin and Node.js (ready for Express development)
-
-This will install Mysql and phpmyadmin (including all dependencies to run Phpmyadmin) AND node.js
-
-This receipe is for development - Node.js is run in using supervisor: changes to any file in the app will trigger a rebuild automatically.
-
-For security, this receipe uses a .env file for credentials.  A sample is provided in the env-sample file. If using these files for a fresh project, copy the env-sample file to a file called .env.  Do NOT commit the changed .env file into your new project for security reasons (in the node package its included in .gitignore so you can't anyway)
-
-In node.js, we use the MySQl2 packages (to avoid problems with MySQL8) and the dotenv package to read the environment variables.
-
-Local files are mounted into the container using the 'volumes' directive in the docker-compose.yml for ease of development.
-
-### Super-quickstart your new project:
-
-* Make sure that you don't have any other containers running usind docker ps
-* run ```docker-compose up --build```
-
-#### Visit phphmyadmin at:
-
-http://localhost:8081/
-
-#### Visit your express app at:
-
-http://localhost:3000
-
-For reference, see the video at: https://roehampton.cloud.panopto.eu/Panopto/Pages/Viewer.aspx?id=6f290a6b-ba94-4729-9632-adcf00ac336e
-
-NB if you are running this on your own computer rather than the azure labs that has been set up for you, you will need to install the following:
-
-* node.js  (windows: https://nodejs.org/en/download/)
-* docker desktop (for windows, this will also prompt you to install linux subsystem for windows https://docs.docker.com/desktop/windows/install/ )
-
-### Whats provided in these scaffolding files?
+# CampusRide 🚗🎓
 
 
-  * A docker setup which will provide you with node.js, mysql and phpmyadmin, including the configuration needed so that both node.js AND phpmyadmin can 'see' and connect to your mysql database.  If you don't use docker you'll have to set up and connect each of these components separately.
-  * A basic starting file structure for a node.js app.
-  * A package.json file that will pull in the node.js libraries required and start your app as needed.
-  * A db.js file which provides all the code needed to connect to the mysql database, using the credentials in the .env file, and which provides a query() function that can send queries to the database and receive a result.  In order to use this (ie. interact with the database, you simply need to include this file in any file you create that needs this database interaction) with the following code:
+Group Members:
 
-```const db = require('./services/db');
-```
+Ack22614975 – Aaron
 
-____
+A00018206 – Ashlin
 
-Useful commands:
+AKI23597614 – Azeez
 
-Get a shell in any of the containers
+A00036936 – Muhammad
 
-```bash
-docker exec -it <container name> bash -l
-```
+A00012787 – Christwin
 
-Once in the database container, you can get a MySQL CLI in the usual way
 
-```bash
-mysql -uroot -p<password> 
-```
+
+# Project Overview
+
+CampusRide is a web application that helps university students share taxi rides in a safe, affordable, and eco-friendly way.
+
+Students can:
+
+Offer rides
+
+Request rides
+
+Plan trips together
+
+Communicate within the app
+
+All users are verified students, helping to build trust and improve safety within the community.
+
+
+
+# Why CampusRide?
+
+Travel costs can be expensive for students, especially for taxis. CampusRide helps students:
+
+Split travel costs
+
+Reduce the number of cars on the road
+
+Travel more safely with other students
+
+Support a community-based transport system
+
+The app focuses on coordination, not real-time taxi dispatching.
+
+
+
+# Virtual Ride Credit System
+
+CampusRide does not use real money.
+
+Instead, it uses virtual ride credits that only work inside the app and have no real-world value.
+
+This approach:
+
+Avoids security risks
+
+Protects user privacy
+
+Removes legal and payment issues
+
+Still demonstrates how transactions and rewards work
+
+
+
+#  How the Credit System Works
+
+Students earn credits by offering rides
+
+Example: Give 1 ride → Earn 1 credit
+
+Students spend credits when requesting rides
+
+Example: Request 1 ride → Spend 1 credit
+
+Each student can view their credit balance on their profile and dashboard
+
+This system encourages participation while keeping the platform simple and safe.
+
+
+
+#  Key Goals of the Project
+
+Improve student travel coordination
+
+Promote cost sharing and sustainability
+
+Build trust through verified users and ratings
+
+Demonstrate a realistic ride-sharing system without real payments
