@@ -1,0 +1,89 @@
+extends auth-layout
+
+block content
+  .auth-wrap
+    .auth-card
+      .auth-header
+        a.logo-pill(href='/')
+          img(src='/images/logo.svg', alt='CampusRide', height='38')
+        p.auth-subtitle Create your student account
+
+      .auth-body
+        if error
+          .error-banner= error
+
+        if success
+          .success-banner= success
+
+        form(action='/register', method='POST')
+          .grid-2
+            .field
+              label(for='fname') First name
+              input#fname(type='text', name='fname', placeholder='e.g. Ashlin', required)
+            .field
+              label(for='lname') Last name
+              input#lname(type='text', name='lname', placeholder='e.g. Shaji', required)
+
+          .field
+            label(for='email') University email
+            input#email(type='email', name='email', placeholder='yourname@university.ac.uk', required)
+
+          .field
+            label(for='dob') Date of birth
+            input#dob(type='date', name='dob', required)
+
+          .field
+            label(for='role') Role
+            select#role(name='role', required)
+              option(value='') Select your role...
+              option(value='Rider') Rider only
+              option(value='Driver') Driver
+              option(value='Driver & Rider') Driver & Rider
+
+          .field
+            label(for='password') Password
+            input#password(
+              type='password',
+              name='password',
+              placeholder='Min. 8 characters',
+              minlength='8',
+              required
+            )
+            .strength-bar
+              .strength-fill#strength-fill
+            .strength-label#strength-label Enter a password
+
+          .field
+            label(for='confirm_password') Confirm password
+            input#confirm_password(
+              type='password',
+              name='confirm_password',
+              placeholder='Re-enter your password',
+              required
+            )
+
+          button.gbtn(type='submit') Create Account →
+
+        .auth-link-row
+          | Already have an account?&nbsp;
+          a(href='/login') Sign in here
+
+  script.
+    const fill = document.getElementById('strength-fill')
+    const lbl  = document.getElementById('strength-label')
+    document.getElementById('password').addEventListener('input', function () {
+      const val = this.value; let s = 0
+      if (val.length >= 8) s++
+      if (/[A-Z]/.test(val)) s++
+      if (/[0-9]/.test(val)) s++
+      if (/[^A-Za-z0-9]/.test(val)) s++
+      const c = [
+        { w: '0%',   bg: '#dee2e6', t: 'Enter a password' },
+        { w: '25%',  bg: '#e74c3c', t: 'Weak' },
+        { w: '50%',  bg: '#e67e22', t: 'Fair' },
+        { w: '75%',  bg: '#f1c40f', t: 'Good' },
+        { w: '100%', bg: '#52796F', t: 'Strong ✓' }
+      ][s]
+      fill.style.width = c.w; fill.style.background = c.bg
+      lbl.textContent = c.t; lbl.style.color = c.bg === '#dee2e6' ? '#6c757d' : c.bg
+    })
