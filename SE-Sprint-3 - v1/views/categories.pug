@@ -1,0 +1,19 @@
+extends layout
+
+block content
+  .page-header
+    h2 Browse by Category
+    p Click a category to filter rides
+
+  .categories-grid
+    each cat in categories
+      a.cat-card(href=`/listing?tag=${cat.tag}`, class=activeTag===cat.tag ? 'selected' : '')
+        .cat-icon= cat.icon
+        .cat-label= cat.name
+        .cat-count= `${cat.count} available`
+
+  .card-sm.destinations-card
+    h3.destinations-title Popular destinations
+    .destinations-tags
+      each dest in destinations
+        a.tag(href=`/listing?destination=${dest}`)= dest

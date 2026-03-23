@@ -1,0 +1,51 @@
+extends layout
+
+block content
+  a.btn-outline(href='/listing') ← Back to results
+
+  .card.detail-card
+    .ride-route.large
+      span= ride.pickup
+      span.ride-arrow →
+      span= ride.destination
+
+    .ride-detail-grid
+      .detail-item
+        .detail-label Date
+        .detail-value= ride.date
+      .detail-item
+        .detail-label Time
+        .detail-value= ride.time
+      .detail-item
+        .detail-label Seats left
+        .detail-value= `${ride.seats_available} of ${ride.seats_total}`
+      .detail-item
+        .detail-label Duration
+        .detail-value= `~${ride.duration} min`
+
+    .ride-tags
+      if ride.tag
+        span.tag.active= ride.tag
+      span.tag.active Verified Driver
+
+    .divider
+
+    .driver-profile
+      .avatar.avatar-lg= ride.driver_initials
+      div
+        h3.driver-name= ride.driver_name
+        .stars ★★★★★
+          span.rating  #{ride.driver_rating} · #{ride.driver_total_rides} rides
+        p.driver-verified Verified Roehampton student
+
+    .points-notice
+      | ★ Joining this ride earns you&nbsp;
+      strong +1 point
+
+    if success
+      .success-banner= success
+    if error
+      .error-banner= error
+
+    form(action=`/detail/${ride.id}/request`, method='POST')
+      button.gbtn(type='submit') Request Ride →
