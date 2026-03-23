@@ -1,0 +1,23 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    title CampusRide - #{title}
+    link(rel='stylesheet', href='/css/style.css')
+    link(rel='preconnect', href='https://fonts.googleapis.com')
+    link(rel='stylesheet', href='https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap')
+  body
+    if user
+      nav
+        a.logo-pill(href='/listing')
+          img(src='/images/logo.svg', alt='CampusRide', height='32')
+        a.nav-btn(href='/listing') Find a Ride
+        a.nav-btn(href='/offer') Offer a Ride
+        a.nav-btn(href='/categories') Categories
+        a.nav-btn(href='/users') Community
+        a.nav-btn(href='/profile') My Profile
+        a.nav-btn.signout(href='/logout') Sign out
+
+    main
+      block content
