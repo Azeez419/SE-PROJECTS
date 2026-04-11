@@ -1,0 +1,94 @@
+extends layout
+
+block content
+  .page-header
+    h2 Find a Ride
+    p Browse available carpools from the verified student community
+
+  //- Search and Filter Section
+  .card.search-card
+    form.search-form(action='/listing', method='GET')
+      .search-grid
+        input.search-input(
+          type='text',
+          name='destination',
+          placeholder='Where to? e.g. Library, Main Campus',
+          value=query || ''
+        )
+        input.search-input.date-input(
+          type='date',
+          name='date',
+          value=dateQuery || ''
+        )
+        button.gbtn-sm(type='submit') Search
+
+  //- Quick Filter Tags
+  .tag-filters
+    a.tag(href='/listing', class=!activeTag ? 'active' : '') All
+    each val in ['Morning', 'Afternoon', 'Evening', 'Quiet Ride', 'Music OK']
+      a.tag(
+        href=`/listing?tag=${val}`, 
+        class=activeTag === val ? 'active' : ''
+      )= val
+
+  //- User Case 8: Map Visualization
+  .map-container
+    div#map(style="height: 400px; width: 100%; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ddd;")
+
+  //- Rides Display Logic
+  if rides && rides.length > 0
+    .rides-list
+      each ride in rides
+        a.ride-card(href=`/detail/${ride.id}`)
+          .ride-route
+            span.location= ride.pickup || 'Campus'
+            span.ride-arrow →
+            span.location= ride.destination
+            //- Handles the case where seats_available might be missing in DB
+            span.badge.badge-green 
+              | #{ride.seats_available || 'Any'} seat#{ride.seats_available !== 1 ? 's' : ''} left
+          
+          .ride-meta
+            span  #{ride.date} · #{ride.time || 'TBD'}
+            //- Fallback if duration isn't in your DB yet
+            if ride.duration
+              span ⏱ ~#{ride.duration} min
+            if ride.tag
+              span.tag-pill= ride.tag
+          
+          .divider
+          
+          .ride-driver
+            .avatar= ride.driver_initials || '??'
+            div
+              .driver-name= ride.driver_name || 'Anonymous Student'
+              .stars 
+                |  
+                span.rating #{ride.driver_rating || '5.0'}
+            
+            //- Matches 'driver_points' (from credits) in index.js
+            .points-chip  #{ride.driver_points || 0} pts
+  else
+    .empty-state
+      .empty-icon 
+      h3 No rides found
+      p Try searching for a different destination or checking a different date.
+      a.gbtn-sm(href='/listing') View all rides
+
+  //- Quick Action: Floating Button (Optional)
+  .fab-container
+    a.fab(href='/offer', title='Offer a Ride') +
+
+  //- Initialization Script for the Map (Required for Leaflet to load)
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      // Initialize map centered on your university or general area
+      var map = L.map('map').setView([51.4594, -0.2412], 13); 
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Placeholder for geocoding ride locations onto markers
+      console.log("Map initialized. Waiting for coordinate data...");
+    });
