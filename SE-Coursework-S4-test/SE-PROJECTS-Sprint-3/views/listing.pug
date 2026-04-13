@@ -44,13 +44,11 @@ block content
             span.location= ride.pickup || 'Campus'
             span.ride-arrow →
             span.location= ride.destination
-            //- Handles the case where seats_available might be missing in DB
             span.badge.badge-green 
               | #{ride.seats_available || 'Any'} seat#{ride.seats_available !== 1 ? 's' : ''} left
           
           .ride-meta
             span  #{ride.date} · #{ride.time || 'TBD'}
-            //- Fallback if duration isn't in your DB yet
             if ride.duration
               span ⏱ ~#{ride.duration} min
             if ride.tag
@@ -65,30 +63,43 @@ block content
               .stars 
                 |  
                 span.rating #{ride.driver_rating || '5.0'}
-            
-            //- Matches 'driver_points' (from credits) in index.js
             .points-chip  #{ride.driver_points || 0} pts
   else
     .empty-state
       .empty-icon 
       h3 No rides found
-      p Try searching for a different destination or checking a different date.
+      p Try searching for a different destination.
       a.gbtn-sm(href='/listing') View all rides
 
-  //- Quick Action: Floating Button (Optional)
   .fab-container
     a.fab(href='/offer', title='Offer a Ride') +
 
-  //- Initialization Script for the Map (Required for Leaflet to load)
+  //- Injecting the ride data so JavaScript can read it
+  script.
+    var rideData = !{JSON.stringify(rides || [])};
+
   script.
     document.addEventListener('DOMContentLoaded', function() {
-      // Initialize map centered on your university or general area
-      var map = L.map('map').setView([51.4594, -0.2412], 13); 
+      // 1. Initialize map centered on your university coordinates
+      // [Latitude, Longitude] - current example is for Roehampton area
+      var map = L.map('map').setView([51.4594, -0.2412], 14); 
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
-      // Placeholder for geocoding ride locations onto markers
-      console.log("Map initialized. Waiting for coordinate data...");
+      // 2. Add Markers for each ride
+      // Note: Since your DB doesn't have lat/long yet, 
+      // we use a small random offset around the center for visualization.
+      rideData.forEach(function(ride) {
+        // Generating pseudo-coordinates based on the center for demo purposes
+        // In your next step, you should store real lat/long in your database
+        var lat = 51.4594 + (Math.random() - 0.5) * 0.01;
+        var lng = -0.2412 + (Math.random() - 0.5) * 0.01;
+
+        var marker = L.marker([lat, lng]).addTo(map);
+        
+        // Add a popup that shows the destination when clicked
+        marker.bindPopup("<b>Destination:</b> " + ride.destination + "<br><a href='/detail/" + ride.id + "'>View Ride</a>");
+      });
     });
