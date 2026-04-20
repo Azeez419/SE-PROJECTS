@@ -151,7 +151,45 @@ router.post('/offer', requireLogin, async (req, res) => {
     await db.query('UPDATE users SET credits = credits + 2 WHERE id = ?', [req.session.user.id]);
     res.redirect('/listing');
 });
+// ─── RATING ───────────────────────────────────
+router.post('/rating/:id', requireLogin, async (req, res) => {
+    const rideId = req.params.id;
+    const rating = req.body.rating;
+    const userId = req.session.user.id;
 
+    try {
+        // Save the rating 
+        await db.query(
+            'INSERT INTO ratings (user_id, ride_id, rating) VALUES (?, ?, ?)',
+            [userId, rideId, rating]
+        );
+
+        // update driver's average rating
+        const result = await db.query(
+            `SELECT AVG(r.rating) as avgRating, r2.driver_id
+             FROM ratings r
+             JOIN rides r2 ON r.ride_id = r2.id
+             WHERE r.ride_id = ?
+             GROUP BY r2.driver_id`,
+            [rideId]
+        );
+
+        if (result.length > 0) {
+            const avg = result[0].avgRating;
+            const driverId = result[0].driver_id;
+
+            await db.query(
+                'UPDATE users SET rating = ? WHERE id = ?',
+                [avg, driverId]
+            );
+        }
+
+        res.redirect('/detail/' + rideId);
+    } catch (err) {
+        console.error(err);
+        res.send("Error saving rating");
+    }
+});
 // ─── LOGOUT (CLEANED UP) ──────────────────────
 router.get('/logout', (req, res) => {
     req.session.destroy((err) => {
