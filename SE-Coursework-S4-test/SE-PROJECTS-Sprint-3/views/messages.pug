@@ -1,0 +1,47 @@
+extends layout
+
+block content
+  .container.mt-4
+    h2.mb-4 💬 Messages
+
+    //- Success banner
+    if success
+      .alert.alert-success.mb-3 ✅ Message sent successfully!
+
+    //- Send Message Form
+    .card.mb-4
+      .card-header
+        strong Send a Message to a Driver
+      .card-body
+        form(method='POST' action='/messages')
+          .mb-3
+            label.form-label(for='driver_id') Select Driver
+            select.form-select(name='driver_id' id='driver_id' required)
+              option(value='') -- Choose a driver --
+              each driver in drivers
+                option(value=driver.id)= driver.name
+
+          .mb-3
+            label.form-label(for='content') Your Message
+            textarea.form-control(
+              name='content'
+              id='content'
+              rows='4'
+              placeholder='Type your message here...'
+              required
+            )
+
+          button.btn.btn-primary(type='submit') 📨 Send Message
+
+    //- Inbox
+    h4.mb-3 📥 Your Inbox
+    if inbox.length === 0
+      p.text-muted No messages yet.
+    else
+      each msg in inbox
+        .card.mb-2
+          .card-body
+            p.mb-1
+              strong= msg.sender_name
+              span.text-muted.ms-2.small= new Date(msg.created_at).toLocaleString()
+            p.mb-0= msg.content
