@@ -151,6 +151,83 @@ router.post('/offer', requireLogin, async (req, res) => {
     await db.query('UPDATE users SET credits = credits + 2 WHERE id = ?', [req.session.user.id]);
     res.redirect('/listing');
 });
+// ─── RATING ───────────────────────────────────
+// POST Submit Rating
+router.post('/rating/:id', requireLogin, async (req, res) => {
+    const rideId = req.params.id;
+    const ratingValue = req.body.rating;
+    const userId = req.session.user.id;
+
+    try {
+        // 1. Save the new rating using your EXACT database column names
+        // user_id (added in Step 1), Ride_ID (matches screenshot), Rating (matches screenshot)
+        await db.query(
+            'INSERT INTO ratings (user_id, Ride_ID, Rating) VALUES (?, ?, ?)',
+            [userId, rideId, ratingValue]
+        );
+
+        // 2. Find the driver of this ride
+        const rideResults = await db.query('SELECT driver_id FROM rides WHERE id = ?', [rideId]);
+        
+        if (rideResults.length > 0) {
+            const driverId = rideResults[0].driver_id;
+
+            // 3. Calculate driver's new average rating across ALL their rides
+            // Note: We use "Rating" here to match your screenshot
+            const stats = await db.query(`
+                SELECT AVG(Rating) as newAvg 
+                FROM ratings 
+                WHERE Ride_ID IN (SELECT id FROM rides WHERE driver_id = ?)
+            `, [driverId]);
+
+            const newAverage = stats[0].newAvg || 0;
+
+            // 4. Update the driver's profile
+            await db.query('UPDATE users SET rating = ? WHERE id = ?', [newAverage, driverId]);
+        }
+
+        // 5. Redirect back to the ride details
+        res.redirect('/detail/' + rideId);
+    } catch (err) {
+        console.error("DATABASE ERROR:", err);
+        res.status(500).send("Error saving rating. Technical details: " + err.message);
+    }
+});
+
+
+// GET Ride Details Page
+router.get('/detail/:id', requireLogin, async (req, res) => {
+    const rideId = req.params.id;
+    try {
+        const sql = `
+            SELECT r.*, u.name as driver_name, u.credits as driver_points, u.rating as driver_rating,
+            (SELECT COUNT(*) FROM rides WHERE driver_id = u.id) as driver_total_rides
+            FROM rides r 
+            JOIN users u ON r.driver_id = u.id 
+            WHERE r.id = ?
+        `;
+        // Use db.query, not db.execute
+        const results = await db.query(sql, [rideId]);
+
+        if (!results || results.length === 0) {
+            return res.status(404).send('Ride not found');
+        }
+
+        const ride = results[0];
+        
+        // Format properties for Pug
+        ride.pickup = ride.pickup_location;
+        if (ride.ride_time) {
+            const dt = new Date(ride.ride_time);
+            ride.date = dt.toLocaleDateString('en-GB');
+            ride.time = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        res.render('detail', { ride, user: req.session.user });
+    } catch (err) {
+        res.status(500).send('Internal Server Error');
+    }
+});
 
 // ─── LOGOUT (CLEANED UP) ──────────────────────
 router.get('/logout', (req, res) => {

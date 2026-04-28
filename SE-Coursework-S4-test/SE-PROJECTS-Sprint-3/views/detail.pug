@@ -9,6 +9,10 @@ block content
       span.ride-arrow →
       span= ride.destination
 
+    //- User Case 8: Map visualization for this specific ride
+    .map-container(style="margin: 20px 0;")
+      div#map(style="height: 300px; width: 100%; border-radius: 8px; border: 1px solid #ddd;")
+
     .ride-detail-grid
       .detail-item
         .detail-label Date
@@ -18,10 +22,10 @@ block content
         .detail-value= ride.time
       .detail-item
         .detail-label Seats left
-        .detail-value= `${ride.seats_available} of ${ride.seats_total}`
+        .detail-value= `${ride.seats_available} of ${ride.seats_total || 4}`
       .detail-item
         .detail-label Duration
-        .detail-value= `~${ride.duration} min`
+        .detail-value= `~${ride.duration || 15} min`
 
     .ride-tags
       if ride.tag
@@ -31,14 +35,29 @@ block content
     .divider
 
     .driver-profile
-      .avatar.avatar-lg= ride.driver_initials
+      .avatar.avatar-lg= ride.driver_initials || '??'
       div
-        h3.driver-name= ride.driver_name
+        h3.driver-name= ride.driver_name || 'Anonymous Student'
         .stars ★★★★★
-          span.rating  #{ride.driver_rating} · #{ride.driver_total_rides} rides
+          span.rating  #{ride.driver_rating || '5.0'} · #{ride.driver_total_rides || 0} rides
         p.driver-verified Verified Roehampton student
+    
+    .divider
+    
+    //- User Story 14: Submit Rating
+    .rating-section
+      h3 Leave a rating
+      form(method="POST", action="/rating/" + ride.id)
+        .search-grid(style="display: flex; align-items: center; gap: 10px; margin-top: 10px;")
+          select.search-input(name="rating" required style="width: auto;")
+            option(value="5") 5 Stars (Excellent)
+            option(value="4") 4 Stars (Good)
+            option(value="3") 3 Stars (Average)
+            option(value="2") 2 Stars (Poor)
+            option(value="1") 1 Star (Awful)
+          button.gbtn-sm(type="submit") Submit Rating
 
-    .points-notice
+    .points-notice(style="margin-top: 20px;")
       | ★ Joining this ride earns you&nbsp;
       strong +1 point
 
@@ -47,5 +66,25 @@ block content
     if error
       .error-banner= error
 
-    form(action=`/detail/${ride.id}/request`, method='POST')
-      button.gbtn(type='submit') Request Ride →
+    //- User Story 9: Request to Join
+    form(action=`/detail/${ride.id}/request`, method='POST' style="margin-top: 20px;")
+      button.gbtn(type='submit' style="width: 100%;") Request Ride →
+
+  //- Logic to initialize the map for this specific ride
+  script.
+    document.addEventListener('DOMContentLoaded', function() {
+      // 1. Coordinates: Centering on University area 
+      // In a real app, you would use ride.lat and ride.lng from your DB
+      var lat = 51.4594 + (Math.random() - 0.5) * 0.01;
+      var lng = -0.2412 + (Math.random() - 0.5) * 0.01;
+
+      var map = L.map('map').setView([lat, lng], 15);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // 2. Add the "Red Sign" (Marker)
+      var marker = L.marker([lat, lng]).addTo(map);
+      marker.bindPopup("<b>Destination:</b> " + "#{ride.destination}").openPopup();
+    });
