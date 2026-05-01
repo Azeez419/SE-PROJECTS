@@ -1,0 +1,19 @@
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "Sprint-4", "main" ]
+  pull_request:
+    branches: [ "Sprint-4", "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - run: npm install
+    # This acts as your CI pipeline by verifying the code installs correctly

@@ -1,0 +1,44 @@
+extends auth-layout
+
+block content
+  .auth-wrap
+    .auth-card
+      .auth-header
+        a.logo-pill(href='/')
+          img(src='/images/logo.svg', alt='CampusRide', height='38')
+        p.auth-subtitle Reset your password
+
+      .auth-body
+        .step-indicator
+          .step.step-active 1
+          .step-line
+          .step.step-pending 2
+          .step-line
+          .step.step-pending 3
+        .step-labels
+          span Enter email
+          span Check inbox
+          span New password
+
+        if error
+          .error-banner= error
+
+        if sent
+          .success-banner
+            | ✅ Reset link sent to #{sentTo}! Check your inbox.
+
+        p.hint-text Enter your university email and we'll send a reset link to your inbox.
+
+        form(action='/forgot', method='POST')
+          .field
+            label(for='email') University email
+            input#email(
+              type='email',
+              name='email',
+              placeholder='yourname@university.ac.uk',
+              required
+            )
+          button.gbtn(type='submit') Send Reset Link →
+
+        .auth-link-row
+          a(href='/login') ← Back to sign in
